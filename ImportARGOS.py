@@ -32,8 +32,8 @@ outputFC = arcpy.GetParameterAsText(2)
 
 ## Prepare a new feature class to which we'll add tracking points
 # Create an empty feature class; requires the path and name as separate parameters
-#outPath,outName = os.path.split(outputFC)
-##arcpy.management.CreateFeatureclass(outPath,outName,"POINT","","","",outputSR)
+outPath,outName = os.path.split(outputFC)
+arcpy.management.CreateFeatureclass(outPath,outName,"POINT","","","",outputSR)
 
 # Add TagID, LC, IQ, and Date fields to the output feature class
 arcpy.management.AddField(outputFC,"TagID","LONG")
