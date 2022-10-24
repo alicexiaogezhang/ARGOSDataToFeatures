@@ -19,6 +19,9 @@ import sys, os, arcpy
 # enable overwriting output
 arcpy.env.overwriteOutput = True
 
+# Equidistance Cylindrical (world)
+outputSR = arcpy.SpatialReference(54002)
+
 # Set input variables (Hard-wired)
 inputFile = 'V:/ARGOSTracking/Data/ARGOSData/1997dg.txt'
 outputFC = "V:/ARGOSTracking/Scratch/ARGOStrack.shp"
@@ -26,7 +29,12 @@ outputFC = "V:/ARGOSTracking/Scratch/ARGOStrack.shp"
 ## Prepare a new feature class to which we'll add tracking points
 # Create an empty feature class; requires the path and name as separate parameters
 outPath,outName = os.path.split(outputFC)
-arcpy.management.CreateFeatureclass(outPath, outName)
+arcpy.management.CreateFeatureclass(outPath,outName,"POINT","","","",outputSR)
+
+# Add TagID, LC, IQ, and Date fields to the output feature class
+arcpy.management.AddField(outputFC,"TagID","LONG")
+arcpy.management.AddField(outputFC,"LC","TEXT")
+arcpy.management.AddField(outputFC,"Date","DATE")
 
 #%% Construct a while loop to iterate through all lines in the datafile
 # Open the ARGOS data file for reading
@@ -55,12 +63,33 @@ while lineString:
         
         # Extract the date we need to variables
         obsLat = line2Data[2]
-        obsLon= line2Data[5]
+        obsLon= line2Data[5]        
         
-        # Print results to see how we're doing
-        print (tagID,"Lat:"+obsLat,"Long:"+obsLon)
-        #print (tagID,obsDate,obsTime,obsLC,"Lat:"+obsLat,"Long:"+obsLon)
-        
+        #Try to convert the coordinates to numbers
+        try:
+            # Print results to see how we're doing
+            #print (tagID,"Lat:"+obsLat,"Long:"+obsLon)
+            #print (tagID,obsDate,obsTime,obsLC,"Lat:"+obsLat,"Long:"+obsLon)
+            
+            # Convert raw coordinate strings to numbers
+            if obsLat[-1] == 'N':
+                obsLat = float(obsLat[:-1])
+            else:
+                obsLat = float(obsLat[:-1]) * -1
+            if obsLon[-1] == 'E':
+                obsLon = float(obsLon[:-1])
+            else:
+                obsLon = float(obsLon[:-1]) * -1
+            
+            # Construct a point object from the feature class
+            obsPoint = arcpy.Point()
+            obsPoint.X = obsLon
+            obsPoint.Y = obsLat
+       
+        #Handle any error
+        except Exception as e:
+            print(f"Error adding record {tagID} to the output: {e}")
+
     # Move to the next line so the while loop progresses
     lineString = inputFileObj.readline()
     
