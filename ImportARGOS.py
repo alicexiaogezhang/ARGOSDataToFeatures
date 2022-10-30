@@ -50,7 +50,7 @@ for input_file in inputFiles:
     if input_file == 'README.txt':
         continue
     
-    print(f'working on file {input_file}')
+    arcpy.AddMessage(f'working on file {input_file}')
     
     input_file = os.path.join(inputFolder, input_file)
     
@@ -116,7 +116,7 @@ for input_file in inputFiles:
                 feature = cur.insertRow((obsPointGeom,tagID,obsLC,obsDate.replace(".","/") + " " + obsTime))
             #Handle any error
             except Exception as e:
-                arcpy.AddWarning(f"Error adding record {tagID} to the output: {e}")
+                print(f"Error adding record {tagID} to the output: {e}")
     
 
         # Move to the next line so the while loop progresses
