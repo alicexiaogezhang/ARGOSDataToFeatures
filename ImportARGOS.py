@@ -111,14 +111,14 @@ for input_file in inputFiles:
                 # Convert the point to a point geometry object with spatial reference
                 inputSR = arcpy.SpatialReference(4326)
                 obsPointGeom = arcpy.PointGeometry(obsPoint,inputSR)
-           
+                
+                # Create a feature object
+                feature = cur.insertRow((obsPointGeom,tagID,obsLC,obsDate.replace(".","/") + " " + obsTime))
             #Handle any error
             except Exception as e:
                 arcpy.AddWarning(f"Error adding record {tagID} to the output: {e}")
     
-            # Create a feature object
-            feature = cur.insertRow((obsPointGeom,tagID,obsLC,obsDate.replace(".","/") + " " + obsTime))
-    
+
         # Move to the next line so the while loop progresses
         lineString = inputFileObj.readline()
 
